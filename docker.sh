@@ -1,4 +1,4 @@
-# docker.io/library/mariadb:latest
+# 
 
 read -p "Enter the name of the container:" name
 
@@ -10,8 +10,7 @@ read -p "Enter the host port: " hostPort
 
 read -p "Enter the container port: " containerPort
 
-read -p "Enter the image:" image
-
+image="docker.io/library/mariadb:latest"
 
 docker run --name $name --user $userName -e MYSQL_ROOT_PASSWORD=$password -p $hostPort:$containerPort -d $image
 
