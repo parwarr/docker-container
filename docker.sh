@@ -1,4 +1,15 @@
-# 
+#!/bin/bash
+# =====================================================================
+# This script is used to create a docker container with mariadb image |
+# =====================================================================
+
+read -p "Choose which task you want to do:
+  [1] Create a container
+  [2] Exit
+" choice
+
+createContainer() {
+  echo "Creating a container..."
 
 read -p "Enter the name of the container:" name
 
@@ -16,4 +27,11 @@ docker run --name $name --user $userName -e MYSQL_ROOT_PASSWORD=$password -p $ho
 
 echo "$name is running on port $hostPort:$containerPort with the user $userName and the password $password and the image $image"
 
-exit 0
+}
+
+case $choice in
+  1) createContainer;;
+  2) exit 0;;
+  *) echo "Invalid choice";;
+esac
+
