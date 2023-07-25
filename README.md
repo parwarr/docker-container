@@ -1,4 +1,4 @@
-## Description
+## Description:
 
 The GitHub script I've created is a powerful and user-friendly tool designed to simplify the process of creating Docker images and structuring YAML files for your projects. With this script at your disposal, you can say goodbye to the need for memorizing complex Docker commands and YAML configurations.
 
@@ -8,7 +8,7 @@ Docker: Make sure you have Docker installed and running on your system before us
 
 Git: The script assumes that you have Git installed and properly configured.
 
-## Running the app
+## Running the app:
 
 Usage:
 
@@ -23,7 +23,7 @@ $ ./docker.sh
 
 ```
 
-Contributions:
+## Contributions:
 
 I believe in the power of open-source collaboration. If you find any issues or have ideas for improvements, feel free to fork the repository, make your changes, and submit a pull request. I welcome contributions from the community to enhance the script and make it even more valuable for everyone.
 
