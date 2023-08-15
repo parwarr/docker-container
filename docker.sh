@@ -4,6 +4,7 @@
 MARIADB_IMAGE="docker.io/library/mariadb:latest"
 MYSQL_IMAGE="docker.io/library/mysql:latest"
 POSTGRESQL_IMAGE="docker.io/library/postgres:latest"
+SQLITE_IMAGE="docker.io/library/sqlite:latest"
 MONGODB="docker.io/library/mongo:latest"
 REDIS="docker.io/library/redis:latest"
 
@@ -83,6 +84,7 @@ if [[ "$CHOICE" == "1" || "$CHOICE" == "2" ]]; then
     1) IMAGE="$MARIADB_IMAGE" ;;
     2) IMAGE="$MYSQL_IMAGE" ;;
     3) IMAGE="$POSTGRESQL_IMAGE" ;;
+    4) IMAGE="$SQLITE_IMAGE" ;;
     5) IMAGE="$MONGODB" ;;
     6) IMAGE="$REDIS" ;;
     7) exit 0 ;;
