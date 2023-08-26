@@ -28,40 +28,43 @@ readCommonInputs() {
   read -p "Enter the container port: " CONTAINER_PORT
 }
 
-# Function to create a Docker container or a docker-compose.yml file
-createContainer() {
+# Function to create a Docker container
+createDockerContainer() {
   pullImage
   readCommonInputs
 
-case "$IMAGE" in
-    1|2|4)
+  case "$IMAGE" in
+    $MARIADB_IMAGE|$MYSQL_IMAGE|$SQLITE_IMAGE)
       docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e MYSQL_ROOT_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
       ;;
-    3)
+    $POSTGRESQL_IMAGE)
       docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e POSTGRES_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
       ;;
-    5)
+    $MONGODB)
       docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e MONGO_INITDB_ROOT_USERNAME="$USERNAME" -e MONGO_INITDB_ROOT_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
       ;;
-    6)
+    $REDIS)
       docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e REDIS_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
       ;;
     *)
-      dockerYmlFile
+      echo "Invalid image choice."
+      exit 1
       ;;
   esac
 
-    if [[ "$IMAGE" != " " ]]; then
-      echo "$CONTAINER_NAME is running on port $HOST_PORT:$CONTAINER_PORT with the user $USERNAME and the password $PASSWORD and the image $IMAGE"
-    fi
-
+  echo "$CONTAINER_NAME is running on port $HOST_PORT:$CONTAINER_PORT with the user $USERNAME and the password $PASSWORD and the image $IMAGE"
 }
 
 # Function to create a docker-compose.yml file
-dockerYmlFile() {  
-echo "Creating docker-compose.yml file..."
+createDockerComposeFile() {  
+  readCommonInputs
 
-  echo "version: '3.1'
+  echo "Creating docker-compose.yml file..."
+
+  case "$IMAGE" in
+    $MARIADB_IMAGE|$MYSQL_IMAGE|$SQLITE_IMAGE)
+      cat > docker-compose.yml <<EOF
+version: '3.1'
 services:
   $CONTAINER_NAME:
     image: $IMAGE
@@ -73,7 +76,60 @@ services:
       - $HOST_PORT:$CONTAINER_PORT
     volumes:
       - /var/lib/mysql
-" > docker-compose.yml
+EOF
+      ;;
+    $POSTGRESQL_IMAGE)
+      cat > docker-compose.yml <<EOF
+version: '3.1'
+services:
+  $CONTAINER_NAME:
+    image: $IMAGE
+    container_name: $CONTAINER_NAME
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: $PASSWORD
+    ports:
+      - $HOST_PORT:$CONTAINER_PORT
+    volumes:
+      - /var/lib/postgresql/data
+EOF
+           ;;
+    $MONGODB)
+      cat > docker-compose.yml <<EOF
+version: '3.1'
+services:
+  $CONTAINER_NAME:
+    image: $IMAGE
+    container_name: $CONTAINER_NAME
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $PASSWORD
+    ports:
+      - $HOST_PORT:$CONTAINER_PORT
+    volumes:
+      - /data/db
+EOF
+      ;;
+    $REDIS)
+      cat > docker-compose.yml <<EOF
+version: '3.1'
+services:
+  $CONTAINER_NAME:
+    image: $IMAGE
+    container_name: $CONTAINER_NAME
+    restart: always
+    environment:
+      REDIS_PASSWORD: $PASSWORD
+    ports:
+      - $HOST_PORT:$CONTAINER_PORT
+EOF
+      ;;
+    *)
+      echo "Invalid image choice for docker-compose.yml file."
+      exit 1
+      ;;
+  esac
 
   echo "docker-compose.yml file created successfully."
 }
@@ -85,7 +141,7 @@ read -p "Choose which task you want to do:
   [3] Exit
 " CHOICE
 
-if [[ "$CHOICE" == "1" || "$CHOICE" == "2" ]]; then
+if [[ "$CHOICE" == "1" ]]; then
   read -p "Choose which database you want to use:
   [1] MariaDB
   [2] MySQL
@@ -94,9 +150,9 @@ if [[ "$CHOICE" == "1" || "$CHOICE" == "2" ]]; then
   [5] MongoDB
   [6] Redis
   [7] Exit
-" IMAGE
+" IMAGE_CHOICE
 
-  case "$IMAGE" in
+  case "$IMAGE_CHOICE" in
     1) IMAGE="$MARIADB_IMAGE" ;;
     2) IMAGE="$MYSQL_IMAGE" ;;
     3) IMAGE="$POSTGRESQL_IMAGE" ;;
@@ -107,7 +163,26 @@ if [[ "$CHOICE" == "1" || "$CHOICE" == "2" ]]; then
     *) echo "Invalid choice"; exit 1 ;;
   esac
   
-  createContainer
+  createDockerContainer
+elif [[ "$CHOICE" == "2" ]]; then
+  read -p "Choose which database you want to use:
+  [1] MariaDB
+  [2] MySQL
+  [3] PostgreSQL
+  [4] Exit
+" IMAGE_CHOICE
+
+  case "$IMAGE_CHOICE" in
+    1) IMAGE="$MARIADB_IMAGE" ;;
+    2) IMAGE="$MYSQL_IMAGE" ;;
+    3) IMAGE="$POSTGRESQL_IMAGE" ;;
+    4) IMAGE="$MONGODB" ;;
+    5) IMAGE="$REDIS" ;;
+    6) exit 0 ;;
+    *) echo "Invalid choice"; exit 1 ;;
+  esac
+  
+  createDockerComposeFile
 else
   exit 0
 fi
