@@ -169,7 +169,9 @@ elif [[ "$CHOICE" == "2" ]]; then
   [1] MariaDB
   [2] MySQL
   [3] PostgreSQL
-  [4] Exit
+  [4] MongoDB
+  [5] Redis
+  [6] Exit
 " IMAGE_CHOICE
 
   case "$IMAGE_CHOICE" in
