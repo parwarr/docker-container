@@ -33,21 +33,26 @@ createDockerContainer() {
   pullImage
   readCommonInputs
 
-if [[ "$CHOICE" == "1" || "$CHOICE" == "2" || "$CHOICE" == "4" ]]; then
-  docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e MYSQL_ROOT_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
+  case "$IMAGE" in
+    $MARIADB_IMAGE|$MYSQL_IMAGE|$SQLITE_IMAGE)
+      docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e MYSQL_ROOT_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
+      ;;
+    $POSTGRESQL_IMAGE)
+      docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e POSTGRES_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
+      ;;
+    $MONGODB)
+      docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e MONGO_INITDB_ROOT_USERNAME="$USERNAME" -e MONGO_INITDB_ROOT_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
+      ;;
+    $REDIS)
+      docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e REDIS_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
+      ;;
+    *)
+      echo "Invalid image choice."
+      exit 1
+      ;;
+  esac
+
   echo "$CONTAINER_NAME is running on port $HOST_PORT:$CONTAINER_PORT with the user $USERNAME and the password $PASSWORD and the image $IMAGE"
-elif [[ "$CHOICE" == "3" ]]; then
-  docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e POSTGRES_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
-  echo "$CONTAINER_NAME is running on port $HOST_PORT:$CONTAINER_PORT with the user $USERNAME and the password $PASSWORD and the image $IMAGE"
-elif [[ "$CHOICE" == "5" ]]; then
-  docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e MONGO_INITDB_ROOT_USERNAME="$USERNAME" -e MONGO_INITDB_ROOT_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
-  echo "$CONTAINER_NAME is running on port $HOST_PORT:$CONTAINER_PORT with the user $USERNAME and the password $PASSWORD and the image $IMAGE"
-elif [[ "$CHOICE" == "6" ]]; then
-  docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e REDIS_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
-  echo "$CONTAINER_NAME is running on port $HOST_PORT:$CONTAINER_PORT with the user $USERNAME and the password $PASSWORD and the image $IMAGE"
-else
-  dockerYmlFile
-fi
 }
 
 # Function to create a docker-compose.yml file
@@ -71,8 +76,62 @@ services:
       - $HOST_PORT:$CONTAINER_PORT
     volumes:
       - /var/lib/mysql
-" > docker-compose.yml
-  echo "The yml file is created"
+EOF
+      ;;
+    $POSTGRESQL_IMAGE)
+      cat > docker-compose.yml <<EOF
+version: '3.1'
+services:
+  $CONTAINER_NAME:
+    image: $IMAGE
+    container_name: $CONTAINER_NAME
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: $PASSWORD
+    ports:
+      - $HOST_PORT:$CONTAINER_PORT
+    volumes:
+      - /var/lib/postgresql/data
+EOF
+           ;;
+    $MONGODB)
+      cat > docker-compose.yml <<EOF
+version: '3.1'
+services:
+  $CONTAINER_NAME:
+    image: $IMAGE
+    container_name: $CONTAINER_NAME
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $PASSWORD
+    ports:
+      - $HOST_PORT:$CONTAINER_PORT
+    volumes:
+      - /data/db
+EOF
+      ;;
+    $REDIS)
+      cat > docker-compose.yml <<EOF
+version: '3.1'
+services:
+  $CONTAINER_NAME:
+    image: $IMAGE
+    container_name: $CONTAINER_NAME
+    restart: always
+    environment:
+      REDIS_PASSWORD: $PASSWORD
+    ports:
+      - $HOST_PORT:$CONTAINER_PORT
+EOF
+      ;;
+    *)
+      echo "Invalid image choice for docker-compose.yml file."
+      exit 1
+      ;;
+  esac
+
+  echo "docker-compose.yml file created successfully."
 }
 
 # Main script
