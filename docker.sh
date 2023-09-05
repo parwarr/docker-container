@@ -187,5 +187,4 @@ elif [[ "$CHOICE" == "2" ]]; then
   createDockerComposeFile
 else
   exit 0
-  echo "test"
 fi
