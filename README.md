@@ -1,6 +1,6 @@
 ## Description:
 
-The GitHub script I've created is a powerful and user-friendly tool designed to simplify the process of creating Docker images and structuring YAML files for your projects. With this script at your disposal, you can say goodbye to the need for memorizing complex Docker commands and YAML configurations.
+The script I've created is a powerful and user-friendly tool designed to simplify the process of creating Docker images and structuring YAML files for your projects. With this script at your disposal, you can say goodbye to the need for memorizing complex Docker commands and YAML configurations.
 
 ## Requirements:
 
