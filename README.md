@@ -23,6 +23,8 @@ $ ./docker.sh
 
 ```
 
+For Windows use WSL as Terminal.
+
 ## Contributions:
 
 I believe in the power of open-source collaboration. If you find any issues or have ideas for improvements, feel free to fork the repository, make your changes, and submit a pull request. I welcome contributions from the community to enhance the script and make it even more valuable for everyone.
