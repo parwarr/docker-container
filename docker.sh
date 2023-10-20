@@ -34,7 +34,7 @@ createDockerContainer() {
   readCommonInputs
 
   case "$IMAGE" in
-    $MARIADB_IMAGE|$MYSQL_IMAGE|$SQLITE_IMAGE)
+    $MARIADB_IMAGE|$MYSQL_IMAGE)
       docker run --name "$CONTAINER_NAME" --user "$USERNAME" -e MYSQL_ROOT_PASSWORD="$PASSWORD" -p "$HOST_PORT":"$CONTAINER_PORT" -d "$IMAGE"
       ;;
     $POSTGRESQL_IMAGE)
@@ -62,7 +62,7 @@ createDockerComposeFile() {
   echo "Creating docker-compose.yml file..."
 
   case "$IMAGE" in
-    $MARIADB_IMAGE|$MYSQL_IMAGE|$SQLITE_IMAGE)
+    $MARIADB_IMAGE|$MYSQL_IMAGE)
       cat > docker-compose.yml <<EOF
 version: '3.1'
 services:
@@ -146,9 +146,8 @@ if [[ "$CHOICE" == "1" ]]; then
   [1] MariaDB
   [2] MySQL
   [3] PostgreSQL
-  [4] SQLite
-  [5] MongoDB
-  [6] Redis
+  [4] MongoDB
+  [5] Redis
   [7] Exit
 " IMAGE_CHOICE
 
@@ -156,10 +155,9 @@ if [[ "$CHOICE" == "1" ]]; then
     1) IMAGE="$MARIADB_IMAGE" ;;
     2) IMAGE="$MYSQL_IMAGE" ;;
     3) IMAGE="$POSTGRESQL_IMAGE" ;;
-    4) IMAGE="$SQLITE_IMAGE" ;;
-    5) IMAGE="$MONGODB" ;;
-    6) IMAGE="$REDIS" ;;
-    7) exit 0 ;;
+    4) IMAGE="$MONGODB" ;;
+    5) IMAGE="$REDIS" ;;
+    6) exit 0 ;;
     *) echo "Invalid choice"; exit 1 ;;
   esac
   
@@ -176,11 +174,10 @@ elif [[ "$CHOICE" == "2" ]]; then
 
   case "$IMAGE_CHOICE" in
     1) IMAGE="$MARIADB_IMAGE" ;;
-    2) IMAGE="$MYSQL_IMAGE" ;;
-    3) IMAGE="$POSTGRESQL_IMAGE" ;;
-    4) IMAGE="$MONGODB" ;;
-    5) IMAGE="$REDIS" ;;
-    6) exit 0 ;;
+    2) IMAGE="$POSTGRESQL_IMAGE" ;;
+    3) IMAGE="$MONGODB" ;;
+    4) IMAGE="$REDIS" ;;
+    5) exit 0 ;;
     *) echo "Invalid choice"; exit 1 ;;
   esac
   
